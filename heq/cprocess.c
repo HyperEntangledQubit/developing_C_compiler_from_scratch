@@ -33,7 +33,7 @@ char compile_process_next_char(struct lex_process* lex_process) {
     char c = getc(compiler->cfile.fp);
     if (c == '\n') {
         compiler->pos.line +=1;
-        compiler->pos.col = 0;
+        compiler->pos.col = 1;
     }
     return c;
 }
@@ -46,6 +46,6 @@ char compile_process_peek_char(struct lex_process* lex_process) {
 }
 
 void compile_process_push_char(struct lex_process* lex_process, char c) {
-    stuct compile_process* compiler = lex_process->compiler;
+    struct compile_process* compiler = lex_process->compiler;
     ungetc(c, compiler->cfile.fp);
 }
