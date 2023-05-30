@@ -38,6 +38,29 @@ struct token {
     bool whitespace; // only true if whitespace between multiple token(s)
     const char* between_brackets; // points to all tokens inside brackets
 };
+struct lex_process;
+typedef char (*LEX_PROCESS_NEXT_CHAR)(struct lex_process* process);
+typedef char (*LEX_PROCESS_PEEK_CHAR)(struct lex_process* process);
+typedef char (*LEX_PROCESS_PUSH_CHAR)(struct lex_process* process, char c);
+
+struct lex_process_functions {
+    LEX_PROCESS_NEXT_CHAR next_char;
+    LEX_PROCESS_PEEK_CHAR peek_char;
+    LEX_PROCESS_PUSH_CHAR push_char;
+};
+
+
+struct lex_process {
+    struct pos pos;
+    struct vector* token_vec;
+    struct compile_process* compiler;
+
+    int current_exp_count;
+    struct buffer* paren_buffer;
+    struct lex_process_functions* function;
+
+    void* private; // private data lexer does NOT understand but user will.
+};
 
 enum {
     COMPILER_FILE_COMPILED_OK,
@@ -47,6 +70,7 @@ enum {
 struct compile_process {
     int flags; // Compilation flags
 
+    struct pos pos;
     struct compile_process_input_file {
         FILE* fp;
         const char* abs_path;
@@ -57,5 +81,10 @@ struct compile_process {
 
 int compile_file(const char* filename, const char* out_filename, int flags);
 struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags);
+
+
+char compile_process_next_char(struct lex_process* lex_process);
+char compile_process_peek_char(struct lex_process* lex_process);
+void compile_process_push_char(struct lex_process* lex_process, char c);
 
 #endif
