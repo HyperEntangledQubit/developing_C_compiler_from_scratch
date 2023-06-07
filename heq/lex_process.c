@@ -13,6 +13,7 @@ struct lex_process* lex_process_create(struct compile_process* compiler,
     process->private = private;
     process->pos.line = 1;
     process->pos.col = 1;
+    return process;
 }
 
 void lex_process_free(struct lex_process* process) {
