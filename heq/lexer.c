@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <string.h>
 
 #include "compiler.h"
@@ -72,11 +73,29 @@ unsigned long long read_number() {
 }
 
 struct token* token_make_number_for_value(unsigned long number) {
-    return token_create(&(struct token){.type=TOKEN_TYPE_NUMBER, .llnum=number});
+    return token_create(
+            &(struct token){ .type=TOKEN_TYPE_NUMBER, .llnum=number});
 }
 
 struct token* token_make_number() {
     return token_make_number_for_value(read_number());
+}
+
+static struct token* token_make_string(char start_delimiter, char end_delimiter) {
+    struct buffer* buf = buffer_create();
+    assert(nextc() == start_delimiter);
+    char c = nextc();
+    for (; c != end_delimiter && c != EOF; c = nextc()) {
+        if (c == '\\')
+        {
+            // Handling of escape character here...
+            continue;
+        }
+        buffer_write(buf, c);
+    }
+    buffer_write(buf, 0x00);
+    return token_create(
+            &(struct token){ .type=TOKEN_TYPE_STRING, .sval=buffer_ptr(buf)});
 }
 
 struct token* read_next_token() {
@@ -86,7 +105,9 @@ struct token* read_next_token() {
         NUMERIC_CASE:
             token = token_make_number();
             break;
-        case ' ':
+        case '"':
+            token = token_make_string('"', '"');
+            break;
         case '\t':
             token = handle_whitespace();
             break;
