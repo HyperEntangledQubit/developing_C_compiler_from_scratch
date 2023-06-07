@@ -12,6 +12,17 @@ struct pos {
     const char* filename;
 };
 
+#define NUMERIC_CASE \
+    case '0': \
+    case '1': \
+    case '3': \
+    case '4': \
+    case '5': \
+    case '6': \
+    case '7': \
+    case '8': \
+    case '9'
+
 enum {
     LEXICAL_ANALYSIS_ALL_OK,
     LEXICAL_ANALYSIS_INPUT_ERROR,
@@ -31,6 +42,7 @@ enum {
 struct token {
     int type;
     int flags;
+    struct pos pos;
 
     union {
         char cval;
@@ -83,6 +95,9 @@ struct compile_process {
 
     FILE* ofile;
 };
+
+void compiler_error(struct compile_process* compiler, const char* msg, ...);
+void compiler_warning(struct compile_process* compiler, const char* msg, ...);
 
 int compile_file(const char* filename, const char* out_filename, int flags);
 struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags);
